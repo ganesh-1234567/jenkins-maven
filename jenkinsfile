@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven 3'  // Make sure Jenkins is configured with this Maven version
+        jdk 'JDK 8'      // Set your JDK version name from Jenkins Global Tools
+    }
+
+    environment {
+        // Optional environment variables
+        BUILD_HOME = "${WORKSPACE}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ganesh-1234567/jenkins-maven.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
